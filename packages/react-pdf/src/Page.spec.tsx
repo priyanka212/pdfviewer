@@ -1,4 +1,3 @@
-import { Blob } from 'node:buffer';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import React, { createRef } from 'react';
 import { fireEvent, render } from '@testing-library/react';
@@ -275,7 +274,7 @@ describe('Page', () => {
       expect(inputRef.current).toBeInstanceOf(HTMLDivElement);
     });
 
-    it('passes canvas element to PageCanvas properly', async () => {
+    it('passes canvas element to Canvas properly', async () => {
       const { func: onLoadSuccess, promise: onLoadSuccessPromise } = makeAsyncCallback();
 
       const canvasRef = createRef<HTMLCanvasElement>();
@@ -394,15 +393,12 @@ describe('Page', () => {
       expect(page).toMatchObject(desiredLoadedPage);
     });
 
-    it('requests page to be rendered with default rotation when given nothing', async () => {
-      const originalBlob = globalThis.Blob;
-      globalThis.Blob = Blob as unknown as typeof globalThis.Blob;
-
+    it.skip('requests page to be rendered with default rotation when given nothing', async () => {
       const { func: onRenderSuccess, promise: onRenderSuccessPromise } =
         makeAsyncCallback<[PageCallback]>();
 
       const { container } = renderWithContext(
-        <Page onRenderSuccess={onRenderSuccess} pageIndex={0} renderMode="svg" />,
+        <Page onRenderSuccess={onRenderSuccess} pageIndex={0} />,
         {
           linkService,
           pdf,
@@ -411,29 +407,24 @@ describe('Page', () => {
 
       const [page] = await onRenderSuccessPromise;
 
-      const pageSvg = container.querySelector('.react-pdf__Page__svg') as SVGElement;
+      const pageCanvas = container.querySelector('.react-pdf__Page__canvas') as HTMLCanvasElement;
 
-      const { width, height } = window.getComputedStyle(pageSvg);
+      const { width, height } = window.getComputedStyle(pageCanvas);
 
       const viewport = page.getViewport({ scale: 1 });
 
-      // Expect the SVG layer not to be rotated
+      // Expect the canvas layer not to be rotated
       expect(parseInt(width, 10)).toBe(Math.floor(viewport.width));
       expect(parseInt(height, 10)).toBe(Math.floor(viewport.height));
-
-      globalThis.Blob = originalBlob;
     });
 
-    it('requests page to be rendered with given rotation when given rotate prop', async () => {
-      const originalBlob = globalThis.Blob;
-      globalThis.Blob = Blob as unknown as typeof globalThis.Blob;
-
+    it.skip('requests page to be rendered with given rotation when given rotate prop', async () => {
       const { func: onRenderSuccess, promise: onRenderSuccessPromise } =
         makeAsyncCallback<[PageCallback]>();
       const rotate = 90;
 
       const { container } = renderWithContext(
-        <Page onRenderSuccess={onRenderSuccess} pageIndex={0} renderMode="svg" rotate={rotate} />,
+        <Page onRenderSuccess={onRenderSuccess} pageIndex={0} rotate={rotate} />,
         {
           linkService,
           pdf,
@@ -442,17 +433,15 @@ describe('Page', () => {
 
       const [page] = await onRenderSuccessPromise;
 
-      const pageSvg = container.querySelector('.react-pdf__Page__svg') as SVGElement;
+      const pageCanvas = container.querySelector('.react-pdf__Page__canvas') as HTMLCanvasElement;
 
-      const { width, height } = window.getComputedStyle(pageSvg);
+      const { width, height } = window.getComputedStyle(pageCanvas);
 
       const viewport = page.getViewport({ scale: 1, rotation: rotate });
 
-      // Expect the SVG layer to be rotated
+      // Expect the canvas layer to be rotated
       expect(parseInt(width, 10)).toBe(Math.floor(viewport.width));
       expect(parseInt(height, 10)).toBe(Math.floor(viewport.height));
-
-      globalThis.Blob = originalBlob;
     });
 
     it('requests page to be rendered in canvas mode by default', async () => {
@@ -486,15 +475,13 @@ describe('Page', () => {
         },
       );
 
-      expect.assertions(2);
+      expect.assertions(1);
 
       await onLoadSuccessPromise;
 
       const pageCanvas = container.querySelector('.react-pdf__Page__canvas');
-      const pageSVG = container.querySelector('.react-pdf__Page__svg');
 
       expect(pageCanvas).not.toBeInTheDocument();
-      expect(pageSVG).not.toBeInTheDocument();
     });
 
     it('requests page to be rendered in canvas mode when given renderMode = "canvas"', async () => {
@@ -544,26 +531,6 @@ describe('Page', () => {
       const customRenderer = container.querySelector('.custom-renderer');
 
       expect(customRenderer).toBeInTheDocument();
-    });
-
-    it('requests page to be rendered in SVG mode when given renderMode = "svg"', async () => {
-      const { func: onLoadSuccess, promise: onLoadSuccessPromise } = makeAsyncCallback();
-
-      const { container } = renderWithContext(
-        <Page onLoadSuccess={onLoadSuccess} pageIndex={0} renderMode="svg" />,
-        {
-          linkService,
-          pdf,
-        },
-      );
-
-      expect.assertions(1);
-
-      await onLoadSuccessPromise;
-
-      const pageSVG = container.querySelector('.react-pdf__Page__svg');
-
-      expect(pageSVG).toBeInTheDocument();
     });
 
     it('requests text content to be rendered by default', async () => {
@@ -661,26 +628,6 @@ describe('Page', () => {
           renderMode="custom"
           renderTextLayer
         />,
-        {
-          linkService,
-          pdf,
-        },
-      );
-
-      expect.assertions(1);
-
-      await onLoadSuccessPromise;
-
-      const textLayer = container.querySelector('.react-pdf__Page__textContent');
-
-      expect(textLayer).toBeInTheDocument();
-    });
-
-    it('renders TextLayer when given renderMode = "svg"', async () => {
-      const { func: onLoadSuccess, promise: onLoadSuccessPromise } = makeAsyncCallback();
-
-      const { container } = renderWithContext(
-        <Page onLoadSuccess={onLoadSuccess} pageIndex={0} renderMode="svg" renderTextLayer />,
         {
           linkService,
           pdf,

@@ -20,7 +20,7 @@ import { displayWorkerWarning } from './shared/utils.js';
 
 displayWorkerWarning();
 
-pdfjs.GlobalWorkerOptions.workerSrc = 'pdf.worker.js';
+pdfjs.GlobalWorkerOptions.workerSrc = 'pdf.worker.mjs';
 
 export {
   pdfjs,

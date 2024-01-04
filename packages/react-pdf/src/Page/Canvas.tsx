@@ -20,11 +20,11 @@ import type { RenderParameters } from 'pdfjs-dist/types/src/display/api.js';
 
 const ANNOTATION_MODE = pdfjs.AnnotationMode;
 
-type PageCanvasProps = {
+type CanvasProps = {
   canvasRef?: React.Ref<HTMLCanvasElement>;
 };
 
-export default function PageCanvas(props: PageCanvasProps) {
+export default function Canvas(props: CanvasProps) {
   const pageContext = usePageContext();
 
   invariant(pageContext, 'Unable to find Page context.');

@@ -2,6 +2,7 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 
 import { defineConfig } from 'vite';
+import topLevelAwait from 'vite-plugin-top-level-await';
 import react from '@vitejs/plugin-react';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
@@ -15,6 +16,7 @@ const standardFontsDir = path.join(
 export default defineConfig({
   base: './',
   plugins: [
+    topLevelAwait(),
     react(),
     viteStaticCopy({
       targets: [
